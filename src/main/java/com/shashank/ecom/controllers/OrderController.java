@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shashank.ecom.Services.OrderService;
@@ -25,9 +27,13 @@ public class OrderController {
 		return SingleOrder;  
 	}
 	
-	@GetMapping("order")
+	@GetMapping("/order")
 	public List<Order> GetAllOrders(){
 		List<Order> allorders = OrderService.GetAllOrders();
 		return allorders;
+	}
+	@PostMapping("/order")
+	public Long CreateOrder(@RequestBody Order order) {
+		return OrderService.CreateOrder(order.getUser(),order.getProducts());
 	}
 }

@@ -63,24 +63,37 @@ public class CategoryService {
 		
 	}
 
-	// handle the excp handln correctly
+	// handle the excp handln correctly // done handling
 	public Category UpdateCategory(long id,String name) throws CategoryNotFoundException {
 		Optional<Category> optionalCategory = categoryRepository.findById(id);
-		
-		Category categoryToUpdate = optionalCategory.get();
-		
-		if(name!=null) {
-			categoryToUpdate.setName(name);
+		if(optionalCategory.isEmpty()) {
+			throw new CategoryNotFoundException("no such category");
+		}
+		if(optionalCategory.isPresent());
+		{
+			Category categoryToUpdate = optionalCategory.get();
+			if(name!=null) {
+				categoryToUpdate.setName(name);
+			}
+			
+			return categoryRepository.save(categoryToUpdate);
 		}
 		
-		return categoryRepository.save(categoryToUpdate);
+		
 	}
 
-	// handle exception handln
-	public String deletecategory(Long id) {
+	// handle exception handln // done handling
+	public String deletecategory(Long id) throws CategoryNotFoundException {
+		
+		Optional<Category> category = categoryRepository.findById(id);
+		if(category.isEmpty()) {
+			throw new CategoryNotFoundException("no such category to delete");
+		}
+		else {
 		categoryRepository.deleteById(id);
 		
 		return "Deleted";
+		}
 	}
  
 }

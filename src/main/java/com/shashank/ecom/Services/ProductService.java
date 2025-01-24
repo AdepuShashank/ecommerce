@@ -98,11 +98,55 @@ public class ProductService {
 		return productMapper.toProductDTO(productRepository.save(saveProduct));
 	}
 
-	
+	public ProductDTO UpdateProduct(long id ,String name, Double price, String image, String category) throws ProductNotFoundException {
+		Optional<Product> optionalProduct = productRepository.findById(id);
+		if(optionalProduct.isEmpty()) {
+			throw new ProductNotFoundException("no product to update");
+		}
+		else {
+			Product ProductToUpdate = optionalProduct.get();
+		
+			if(name!=null) {
+				ProductToUpdate.setName(name);
+			}
+			if(price!=null) {
+				ProductToUpdate.setPrice(price);
+			}
+			if(image!=null) {
+				ProductToUpdate.setImage(image);
+			}
+			
+			
+			Optional<Category> optionalcategory = categoryRepository.getCategoryByName(category);
+			
+			if(optionalcategory.isPresent()) {
+				ProductToUpdate.setCategory(optionalcategory.get());
+			}
+			else {
+				Category c = new Category();
+				c.setName(category);
+				
+				Category savedCategory = categoryRepository.save(c);
+				
+				ProductToUpdate.setCategory(savedCategory);
+				
+			}
+			Product updaetdProduct = ProductToUpdate;
+			ProductDTO updatedProductDTO = productMapper.toProductDTO(updaetdProduct);
+			
+			return updatedProductDTO;
+		}
+	}
 
-	/// handle excp handln
-	public String deleteProduct(long id) {
-		productRepository.deleteById(id);
+	/// handled exception
+	public String deleteProduct(long id) throws ProductNotFoundException {
+		
+		Optional<Product> productById = productRepository.findById(id);
+		if(productById.isEmpty())
+			throw new ProductNotFoundException("no such product with id" + id);
+		else
+			productRepository.deleteById(id);
+		
 		return "Deleted product " + id;
 	}
 

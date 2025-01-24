@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import com.shashank.ecom.Exceptions.OrderNOtFoundException;
 import com.shashank.ecom.Repository.OrderRepository;
 import com.shashank.ecom.models.Order;
+import com.shashank.ecom.models.OrderStatus;
+import com.shashank.ecom.models.Product;
+import com.shashank.ecom.models.User;
 
 @Service
 public class OrderService {
@@ -38,5 +41,23 @@ public class OrderService {
 		List<Order> allorders = orderRepository.findAll();
 		
 		return allorders;
+	}
+	
+	public Long CreateOrder(User user,List<Product> products) {
+		Order order = new Order();
+		
+		Double totalamount = 0.0;
+		for(Product p : products) {
+			totalamount += p.getPrice();
+			
+		}
+		order.setUser(user);
+		order.setProducts(products);
+		order.setPrice(totalamount);
+		order.setOrderstatus(OrderStatus.CREATED);
+		
+		Order savedOrder = orderRepository.save(order);
+		
+		return savedOrder.getId();
 	}
 }
