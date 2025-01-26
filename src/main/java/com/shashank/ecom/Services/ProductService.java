@@ -57,6 +57,7 @@ public class ProductService {
 	public List<ProductDTO> GetAllProducts(){
 		List<Product> ProductFromDB ;
 		ProductFromDB = productRepository.findAll();
+		
 		List<ProductDTO> productDTOS = new ArrayList<>();
 		
 		for(Product p : ProductFromDB) {

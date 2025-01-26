@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shashank.ecom.Services.UserService;
@@ -28,6 +30,17 @@ public class UserController {
 	@GetMapping("/user")
 	public List<User> getAllUsers() {
 		List<User> users = userService.getAllUsers();
+		
+		
 		return users;
+	}
+	
+	@PostMapping("/user")
+	public User postUser(@RequestBody User user) {
+		User savedUser = userService.postUser(user.getName(),
+				user.getEmail(),
+				user.getPhone(),
+				user.getGender());
+		return savedUser;
 	}
 }
