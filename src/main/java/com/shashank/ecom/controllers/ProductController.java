@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shashank.ecom.DTO.ProductDTO;
 import com.shashank.ecom.Mapper.ProductMapper;
 import com.shashank.ecom.Services.ProductService;
+import com.shashank.ecom.models.Product;
 
 
 @RestController
@@ -31,14 +33,17 @@ public class ProductController {
 	public ProductDTO GetProduct(@PathVariable("id") Long id)
 	{
 
-		ProductDTO prfdb = ProductService.GetProduct(id);
+		Product prfdb = ProductService.GetProduct(id);
 		
-		return prfdb;
+		return productMapper.toProductDTO(prfdb);
 	}
 
 	@GetMapping("/product")
-	public List<ProductDTO> GetAllProduccts() {
-		List<ProductDTO> allprfdb = ProductService.GetAllProducts();
+	public List<ProductDTO> GetAllProduccts(
+			@RequestParam("page") int page,
+			@RequestParam("limit") int limit,
+			@RequestParam("sortby") String sortby){
+		List<ProductDTO> allprfdb = ProductService.GetAllProducts(page-1, limit, sortby);
 		return allprfdb;
 		
 	}

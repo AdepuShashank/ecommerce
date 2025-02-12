@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.shashank.ecom.DTO.ProductDTO;
@@ -21,15 +24,26 @@ public class ProductService {
 	ProductRepository productRepository;
 	CategoryRepository categoryRepository;
 	ProductMapper productMapper;
+	RedisTemplate<String,Object> redisTemplate;
 	
-	public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductMapper productMapper, CategoryService categoryService) {
+	public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductMapper productMapper, CategoryService categoryService,RedisTemplate<String,Object> redisTemplate) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
 		this.productMapper = productMapper;
 		this.categoryService = categoryService;
+		this.redisTemplate = redisTemplate;
 	}
 	
-	public ProductDTO GetProduct(Long id) throws ProductNotFoundException{
+	public Product GetProduct(Long id) throws ProductNotFoundException{
+		
+		Product pFromCache= (Product)redisTemplate.opsForHash().get("PRODUCT_"+id, id);
+		System.out.println("done with pfromcache");
+		
+		if(pFromCache != null) {
+			System.out.println("hit");
+			return pFromCache;
+		}
+		
 		Optional<Product> GetASingleProductById;
 		GetASingleProductById = productRepository.findById(id);
 		
@@ -42,21 +56,17 @@ public class ProductService {
 			SingleProduct = GetASingleProductById.get();
 		}
 		
-		ProductDTO productDTO;
-		productDTO = new ProductDTO();
+		redisTemplate.opsForHash().put("PRODUCT_"+id, id, SingleProduct);
+		System.out.println("saved in cache");
 		
-		productDTO.setId(SingleProduct.getId());
-		productDTO.setName(SingleProduct.getName());
-		productDTO.setPrice(SingleProduct.getPrice());
-		productDTO.setImage(SingleProduct.getImage());
-		productDTO.setCategoryName(SingleProduct.getCategory().getName());
-		
-		return productDTO;
+		return SingleProduct;
 	}
 	
-	public List<ProductDTO> GetAllProducts(){
-		List<Product> ProductFromDB ;
-		ProductFromDB = productRepository.findAll();
+	public List<ProductDTO> GetAllProducts(int page , int limit, String sortby){
+		Page<Product> ProductFromDB;
+		
+		ProductFromDB = productRepository.findAll(
+						PageRequest.of(page, limit,Sort.by(sortby).descending()));
 		
 		List<ProductDTO> productDTOS = new ArrayList<>();
 		
